@@ -17,8 +17,8 @@ This document lists all the financial ratios discussed in the CFA Level 1 curric
 |------------|---------|--------------|
 | Debt-to-Equity Ratio | Total Debt / Total Equity | Available from Yahoo Finance |
 | Debt-to-Assets Ratio | Total Debt / Total Assets | Calculated |
-| Financial Leverage Ratio | Total Assets / Total Equity | To be calculated |
-| Interest Coverage Ratio | EBIT / Interest Expense | To be calculated |
+| Financial Leverage Ratio | Total Assets / Total Equity | Calculated |
+| Interest Coverage Ratio | EBIT / Interest Expense | Calculated |
 
 ## Profitability Ratios
 

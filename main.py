@@ -6,8 +6,8 @@ Main script for data science project.
 import pprint
 import json
 from yahoo_finance_fetcher import YahooFinanceFetcher
-from financial_ratios import FinancialRatiosCalculator
 from liquidity_ratios import LiquidityRatios
+from solvency_ratios import SolvencyRatios
 
 
 if __name__ == "__main__":
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
         # Calculate Debt-to-Assets Ratio (next ratio to be calculated)
         try:
-            debt_to_assets = FinancialRatiosCalculator.debt_to_assets_ratio(
+            debt_to_assets = SolvencyRatios.debt_to_assets_ratio(
                 fundamentals["balance_sheet"]
             )
             print(
@@ -90,6 +90,45 @@ if __name__ == "__main__":
             print(f"Error calculating Debt-to-Assets Ratio: Missing key {e}")
         except Exception as e:
             print(f"Error calculating Debt-to-Assets Ratio: {e}")
+
+        # Calculate Debt-to-Equity Ratio from info
+        try:
+            debt_to_equity = SolvencyRatios.debt_to_equity_ratio_from_info(
+                fundamentals["info"]
+            )
+            print(
+                f"Debt-to-Equity Ratio for {ticker} (from Yahoo Finance): {debt_to_equity:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error retrieving Debt-to-Equity Ratio: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Debt-to-Equity Ratio: {e}")
+
+        # Calculate Financial Leverage Ratio
+        try:
+            financial_leverage = SolvencyRatios.financial_leverage_ratio(
+                fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Financial Leverage Ratio for {ticker} ({latest_date}): {financial_leverage:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Financial Leverage Ratio: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Financial Leverage Ratio: {e}")
+
+        # Calculate Interest Coverage Ratio
+        try:
+            interest_coverage = SolvencyRatios.interest_coverage_ratio(
+                fundamentals["income_statement"]
+            )
+            print(
+                f"Calculated Interest Coverage Ratio for {ticker} ({latest_date}): {interest_coverage:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Interest Coverage Ratio: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Interest Coverage Ratio: {e}")
 
         # Calculate Defensive Interval Ratio
         try:
