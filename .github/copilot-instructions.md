@@ -1,0 +1,1 @@
+- Do not suggest minor style improvements, refactoring that is purely stylistic, or subjective code enhancements. Only provide code suggestions when explicitly asked, or when the code has a critical bug, a security vulnerability, or a severe performance issue. Do not provide optional or 'nice-to-have' suggestions.
