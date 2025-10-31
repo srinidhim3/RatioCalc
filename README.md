@@ -7,6 +7,7 @@ A Python-based financial ratios calculator that fetches stock data from Yahoo Fi
 - Fetch historical stock data and fundamentals (balance sheet, income statement, cash flow) from Yahoo Finance
 - Calculate liquidity ratios: Current Ratio, Quick Ratio, Cash Ratio, Defensive Interval Ratio
 - Calculate solvency ratios: Debt-to-Equity Ratio, Debt-to-Assets Ratio, Financial Leverage Ratio, Interest Coverage Ratio
+- Calculate profitability ratios: Return on Assets (ROA), Return on Equity (ROE)
 - Save fetched data to CSV and JSON files for further analysis
 - Command-line interface for easy usage
 
@@ -62,6 +63,7 @@ Data files will be saved in the project directory:
 - `financial_ratios.py`: Module for calculating financial ratios (placeholder)
 - `liquidity_ratios.py`: Module for calculating liquidity ratios
 - `solvency_ratios.py`: Module for calculating solvency ratios
+- `profitability_ratios.py`: Module for calculating profitability ratios
 - `docs/`: Documentation for specific ratios
 - `assets/`: Sample data files
 

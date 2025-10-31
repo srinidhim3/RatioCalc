@@ -8,6 +8,7 @@ import json
 from yahoo_finance_fetcher import YahooFinanceFetcher
 from liquidity_ratios import LiquidityRatios
 from solvency_ratios import SolvencyRatios
+from profitability_ratios import ProfitabilityRatios
 
 
 if __name__ == "__main__":
@@ -130,7 +131,56 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Error calculating Interest Coverage Ratio: {e}")
 
-        # Calculate Defensive Interval Ratio
+        # Calculate Return on Assets (ROA)
+        try:
+            roa = ProfitabilityRatios.return_on_assets(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Return on Assets (ROA) for {ticker} ({latest_date}): {roa:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Return on Assets (ROA): Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Return on Assets (ROA): {e}")
+
+        # Calculate Return on Equity (ROE)
+        try:
+            roe = ProfitabilityRatios.return_on_equity(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Return on Equity (ROE) for {ticker} ({latest_date}): {roe:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Return on Equity (ROE): Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Return on Equity (ROE): {e}")
+
+        # Calculate Return on Total Capital (ROTC)
+        try:
+            rotc = ProfitabilityRatios.return_on_total_capital(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Return on Total Capital (ROTC) for {ticker} ({latest_date}): {rotc:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Return on Total Capital (ROTC): Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Return on Total Capital (ROTC): {e}")
+        # Calculate Return on Common Equity (ROCE)
+        try:
+            roce = ProfitabilityRatios.return_on_common_equity(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Return on Common Equity (ROCE) for {ticker} ({latest_date}): {roce:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Return on Common Equity (ROCE): Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Return on Common Equity (ROCE): {e}")
         try:
             dir_ratio = LiquidityRatios.defensive_interval_ratio(
                 fundamentals["balance_sheet"], fundamentals["income_statement"]

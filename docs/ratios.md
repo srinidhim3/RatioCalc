@@ -27,10 +27,10 @@ This document lists all the financial ratios discussed in the CFA Level 1 curric
 | Gross Profit Margin | (Revenue - Cost of Goods Sold) / Revenue | Available from Yahoo Finance |
 | Operating Profit Margin | Operating Income / Revenue | Available from Yahoo Finance |
 | Net Profit Margin | Net Income / Revenue | Available from Yahoo Finance |
-| Return on Assets (ROA) | Net Income / Total Assets | To be calculated |
-| Return on Equity (ROE) | Net Income / Shareholders' Equity | To be calculated |
-| Return on Total Capital | EBIT / (Debt + Equity) | To be calculated |
-| Return on Common Equity | Net Income / Common Shareholders' Equity | To be calculated |
+| Return on Assets (ROA) | Net Income / Total Assets | Calculated |
+| Return on Equity (ROE) | Net Income / Shareholders' Equity | Calculated |
+| Return on Total Capital | EBIT / (Debt + Equity) | Calculated |
+| Return on Common Equity | Net Income / Common Shareholders' Equity | Calculated |
 
 ## Activity Ratios (Efficiency Ratios)
 
