@@ -3,7 +3,7 @@
 Liquidity Ratios Calculator module.
 """
 
-from typing import Optional
+from typing import Optional, Dict
 import pandas as pd
 
 
@@ -13,209 +13,211 @@ class LiquidityRatios:
     """
 
     @staticmethod
-    def current_ratio(balance_sheet: pd.DataFrame, date: Optional[str] = None) -> float:
+    def current_ratio(
+        balance_sheet: pd.DataFrame,
+    ) -> Dict[str, Optional[float]]:
         """
-        Calculates the Current Ratio from the balance sheet.
+        Calculates the Current Ratio from the balance sheet for all available periods.
 
         Args:
             balance_sheet (pd.DataFrame): The balance sheet DataFrame.
-            date (str, optional): The date column to use (e.g., '2025-03-31'). If None, uses the latest date.
 
         Returns:
-            float: The Current Ratio.
+            dict: The Current Ratios with dates as keys.
 
         Raises:
             KeyError: If required keys are missing.
-            ZeroDivisionError: If current liabilities are zero.
         """
         if balance_sheet is None:
             raise ValueError("Balance sheet data is None.")
 
-        if date is None:
-            date = balance_sheet.columns[0]  # Latest date
+        ratios = {}
+        for d in balance_sheet.columns:
+            try:
+                current_assets_val = balance_sheet.at["Current Assets", d]
+                current_liabilities_val = balance_sheet.at["Current Liabilities", d]
 
-        try:
-            current_assets_val = balance_sheet.at["Current Assets", date]
-            current_liabilities_val = balance_sheet.at["Current Liabilities", date]
-        except KeyError as e:
-            raise KeyError(f"Required key missing in balance sheet: {e}")
+                def to_float(val, name: str) -> float:
+                    if pd.isna(val):
+                        raise ValueError(f"{name} is NaN or missing")
+                    if isinstance(val, complex):
+                        raise TypeError(
+                            f"{name} is a complex number and cannot be converted to float"
+                        )
+                    return float(val)
 
-        def to_float(val, name: str) -> float:
-            if pd.isna(val):
-                raise ValueError(f"{name} is NaN or missing")
-            if isinstance(val, complex):
-                raise TypeError(
-                    f"{name} is a complex number and cannot be converted to float"
+                current_assets = to_float(current_assets_val, "Current Assets")
+                current_liabilities = to_float(
+                    current_liabilities_val, "Current Liabilities"
                 )
-            return float(val)
 
-        current_assets = to_float(current_assets_val, "Current Assets")
-        current_liabilities = to_float(current_liabilities_val, "Current Liabilities")
-
-        if current_liabilities == 0:
-            raise ZeroDivisionError("Current liabilities are zero.")
-
-        return current_assets / current_liabilities
+                if current_liabilities == 0:
+                    ratios[d] = None  # or raise, but for all_periods, set to None
+                else:
+                    ratios[d] = current_assets / current_liabilities
+            except (KeyError, ValueError, TypeError):
+                ratios[d] = None
+        return ratios
 
     @staticmethod
-    def quick_ratio(balance_sheet: pd.DataFrame, date: Optional[str] = None) -> float:
+    def quick_ratio(
+        balance_sheet: pd.DataFrame,
+    ) -> Dict[str, Optional[float]]:
         """
-        Calculates the Quick Ratio (Acid-Test Ratio) from the balance sheet.
+        Calculates the Quick Ratio (Acid-Test Ratio) from the balance sheet for all available periods.
 
         Args:
             balance_sheet (pd.DataFrame): The balance sheet DataFrame.
-            date (str, optional): The date column to use (e.g., '2025-03-31'). If None, uses the latest date.
 
         Returns:
-            float: The Quick Ratio.
+            dict: The Quick Ratios with dates as keys.
 
         Raises:
             KeyError: If required keys are missing.
-            ZeroDivisionError: If current liabilities are zero.
         """
         if balance_sheet is None:
             raise ValueError("Balance sheet data is None.")
 
-        if date is None:
-            date = balance_sheet.columns[0]  # Latest date
+        ratios = {}
+        for d in balance_sheet.columns:
+            try:
+                cash_equivalents = balance_sheet.at[
+                    "Cash Cash Equivalents And Short Term Investments", d
+                ]
+                accounts_receivable = balance_sheet.at["Accounts Receivable", d]
+                current_liabilities = balance_sheet.at["Current Liabilities", d]
 
-        try:
-            cash_equivalents = balance_sheet.at[
-                "Cash Cash Equivalents And Short Term Investments", date
-            ]
-            accounts_receivable = balance_sheet.at["Accounts Receivable", date]
-            current_liabilities = balance_sheet.at["Current Liabilities", date]
-        except KeyError as e:
-            raise KeyError(f"Required key missing in balance sheet: {e}")
+                def to_float(val, name: str) -> float:
+                    if pd.isna(val):
+                        raise ValueError(f"{name} is NaN or missing")
+                    if isinstance(val, complex):
+                        raise TypeError(
+                            f"{name} is a complex number and cannot be converted to float"
+                        )
+                    return float(val)
 
-        def to_float(val, name: str) -> float:
-            if pd.isna(val):
-                raise ValueError(f"{name} is NaN or missing")
-            if isinstance(val, complex):
-                raise TypeError(
-                    f"{name} is a complex number and cannot be converted to float"
+                cash_equiv = to_float(
+                    cash_equivalents,
+                    "Cash Cash Equivalents And Short Term Investments",
                 )
-            return float(val)
+                receivables = to_float(accounts_receivable, "Accounts Receivable")
+                liabilities = to_float(current_liabilities, "Current Liabilities")
 
-        cash_equiv = to_float(
-            cash_equivalents, "Cash Cash Equivalents And Short Term Investments"
-        )
-        receivables = to_float(accounts_receivable, "Accounts Receivable")
-        liabilities = to_float(current_liabilities, "Current Liabilities")
-
-        if liabilities == 0:
-            raise ZeroDivisionError("Current liabilities are zero.")
-
-        quick_assets = cash_equiv + receivables
-        return quick_assets / liabilities
+                if liabilities == 0:
+                    ratios[d] = None
+                else:
+                    quick_assets = cash_equiv + receivables
+                    ratios[d] = quick_assets / liabilities
+            except (KeyError, ValueError, TypeError):
+                ratios[d] = None
+        return ratios
 
     @staticmethod
-    def cash_ratio(balance_sheet: pd.DataFrame, date: Optional[str] = None) -> float:
+    def cash_ratio(
+        balance_sheet: pd.DataFrame,
+    ) -> Dict[str, Optional[float]]:
         """
-        Calculates the Cash Ratio from the balance sheet.
+        Calculates the Cash Ratio from the balance sheet for all available periods.
 
         Args:
             balance_sheet (pd.DataFrame): The balance sheet DataFrame.
-            date (str, optional): The date column to use (e.g., '2025-03-31'). If None, uses the latest date.
 
         Returns:
-            float: The Cash Ratio.
+            dict: The Cash Ratios with dates as keys.
 
         Raises:
             KeyError: If required keys are missing.
-            ZeroDivisionError: If current liabilities are zero.
         """
         if balance_sheet is None:
             raise ValueError("Balance sheet data is None.")
 
-        if date is None:
-            date = balance_sheet.columns[0]  # Latest date
+        ratios = {}
+        for d in balance_sheet.columns:
+            try:
+                cash_equivalents = balance_sheet.at[
+                    "Cash Cash Equivalents And Short Term Investments", d
+                ]
+                current_liabilities = balance_sheet.at["Current Liabilities", d]
 
-        try:
-            cash_equivalents = balance_sheet.at[
-                "Cash Cash Equivalents And Short Term Investments", date
-            ]
-            current_liabilities = balance_sheet.at["Current Liabilities", date]
-        except KeyError as e:
-            raise KeyError(f"Required key missing in balance sheet: {e}")
+                def to_float(val, name: str) -> float:
+                    if pd.isna(val):
+                        raise ValueError(f"{name} is NaN or missing")
+                    if isinstance(val, complex):
+                        raise TypeError(
+                            f"{name} is a complex number and cannot be converted to float"
+                        )
+                    return float(val)
 
-        def to_float(val, name: str) -> float:
-            if pd.isna(val):
-                raise ValueError(f"{name} is NaN or missing")
-            if isinstance(val, complex):
-                raise TypeError(
-                    f"{name} is a complex number and cannot be converted to float"
+                cash_equiv = to_float(
+                    cash_equivalents,
+                    "Cash Cash Equivalents And Short Term Investments",
                 )
-            return float(val)
+                liabilities = to_float(current_liabilities, "Current Liabilities")
 
-        cash_equiv = to_float(
-            cash_equivalents, "Cash Cash Equivalents And Short Term Investments"
-        )
-        liabilities = to_float(current_liabilities, "Current Liabilities")
-
-        if liabilities == 0:
-            raise ZeroDivisionError("Current liabilities are zero.")
-
-        return cash_equiv / liabilities
+                if liabilities == 0:
+                    ratios[d] = None
+                else:
+                    ratios[d] = cash_equiv / liabilities
+            except (KeyError, ValueError, TypeError):
+                ratios[d] = None
+        return ratios
 
     @staticmethod
     def defensive_interval_ratio(
         balance_sheet: pd.DataFrame,
         income_statement: pd.DataFrame,
-        date: Optional[str] = None,
-    ) -> float:
+    ) -> Dict[str, Optional[float]]:
         """
-        Calculates the Defensive Interval Ratio from the balance sheet and income statement.
+        Calculates the Defensive Interval Ratio from the balance sheet and income statement for all available periods.
 
         Args:
             balance_sheet (pd.DataFrame): The balance sheet DataFrame.
             income_statement (pd.DataFrame): The income statement DataFrame.
-            date (str, optional): The date column to use (e.g., '2025-03-31'). If None, uses the latest date.
 
         Returns:
-            float: The Defensive Interval Ratio (in days).
+            dict: The Defensive Interval Ratios (in days) with dates as keys.
 
         Raises:
             KeyError: If required keys are missing.
-            ZeroDivisionError: If daily operational expenses are zero.
         """
         if balance_sheet is None or income_statement is None:
             raise ValueError("Balance sheet or income statement data is None.")
 
-        if date is None:
-            date = balance_sheet.columns[0]  # Latest date
+        ratios = {}
+        for d in balance_sheet.columns:
+            try:
+                cash_equiv = balance_sheet.at["Cash And Cash Equivalents", d]
+                receivables = balance_sheet.at["Accounts Receivable", d]
+                operating_expense = income_statement.at["Operating Expense", d]
+                depreciation = income_statement.at[
+                    "Depreciation And Amortization In Income Statement", d
+                ]
 
-        try:
-            cash_equiv = balance_sheet.at["Cash And Cash Equivalents", date]
-            receivables = balance_sheet.at["Accounts Receivable", date]
-            operating_expense = income_statement.at["Operating Expense", date]
-            depreciation = income_statement.at[
-                "Depreciation And Amortization In Income Statement", date
-            ]
-        except KeyError as e:
-            raise KeyError(f"Required key missing: {e}")
+                def to_float(val, name: str) -> float:
+                    if pd.isna(val):
+                        raise ValueError(f"{name} is NaN or missing")
+                    if isinstance(val, complex):
+                        raise TypeError(
+                            f"{name} is a complex number and cannot be converted to float"
+                        )
+                    return float(val)
 
-        def to_float(val, name: str) -> float:
-            if pd.isna(val):
-                raise ValueError(f"{name} is NaN or missing")
-            if isinstance(val, complex):
-                raise TypeError(
-                    f"{name} is a complex number and cannot be converted to float"
+                cash = to_float(cash_equiv, "Cash And Cash Equivalents")
+                rec = to_float(receivables, "Accounts Receivable")
+                op_exp = to_float(operating_expense, "Operating Expense")
+                dep = to_float(
+                    depreciation,
+                    "Depreciation And Amortization In Income Statement",
                 )
-            return float(val)
 
-        cash = to_float(cash_equiv, "Cash And Cash Equivalents")
-        rec = to_float(receivables, "Accounts Receivable")
-        op_exp = to_float(operating_expense, "Operating Expense")
-        dep = to_float(
-            depreciation, "Depreciation And Amortization In Income Statement"
-        )
+                defensive_assets = cash + rec
+                annual_op_expenses = op_exp - dep
+                daily_op_expenses = annual_op_expenses / 365
 
-        defensive_assets = cash + rec
-        annual_op_expenses = op_exp - dep
-        daily_op_expenses = annual_op_expenses / 365
-
-        if daily_op_expenses == 0:
-            raise ZeroDivisionError("Daily operational expenses are zero.")
-
-        return defensive_assets / daily_op_expenses
+                if daily_op_expenses == 0:
+                    ratios[d] = None
+                else:
+                    ratios[d] = defensive_assets / daily_op_expenses
+            except (KeyError, ValueError, TypeError):
+                ratios[d] = None
+        return ratios

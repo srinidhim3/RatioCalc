@@ -7,14 +7,15 @@ A Python-based financial ratios calculator that fetches stock data from Yahoo Fi
 - Fetch historical stock data and fundamentals (balance sheet, income statement, cash flow) from Yahoo Finance
 - Calculate comprehensive CFA Level 1 financial ratios:
   - **Liquidity Ratios**: Current Ratio, Quick Ratio, Cash Ratio, Defensive Interval Ratio
-  - **Solvency Ratios**: Debt-to-Equity Ratio, Debt-to-Assets Ratio, Financial Leverage Ratio, Interest Coverage Ratio
-  - **Profitability Ratios**: Gross Profit Margin, Operating Profit Margin, Net Profit Margin, Return on Assets (ROA), Return on Equity (ROE), Return on Total Capital, Return on Common Equity
+  - **Solvency Ratios**: Debt-to-Assets Ratio, Financial Leverage Ratio, Interest Coverage Ratio
+  - **Profitability Ratios**: Return on Assets (ROA), Return on Equity (ROE), Return on Total Capital, Return on Common Equity
   - **Activity Ratios**: Inventory Turnover, Days of Inventory on Hand, Receivables Turnover, Days of Sales Outstanding, Payables Turnover, Number of Days of Payables, Working Capital Turnover, Fixed Asset Turnover, Total Asset Turnover
-  - **Market Ratios**: Price-to-Earnings Ratio, Price-to-Book Ratio, Price-to-Sales Ratio, Price-to-Cash Flow Ratio, Dividend Yield, Dividend Payout Ratio, Retention Rate
   - **DuPont Analysis**: Breakdown of ROE into Net Profit Margin × Asset Turnover × Financial Leverage
-- Retrieve pre-calculated ratios from Yahoo Finance info
+- Multi-period analysis with trend tracking across fiscal years
+- Clean DataFrame output for programmatic analysis and visualization
+- Configurable data cleaning (drop problematic periods)
 - Save fetched data to CSV and JSON files for further analysis
-- Command-line interface for easy usage
+- Both command-line and programmatic interfaces
 
 ## Installation
 
@@ -37,24 +38,79 @@ A Python-based financial ratios calculator that fetches stock data from Yahoo Fi
 
 ## Usage
 
-Run the main script with a stock ticker symbol:
+### Command Line Usage
+
+Run the main script with default settings:
 
 ```bash
 python main.py
 ```
 
-The script is currently configured to analyze ITC.NS (ITC Limited on NSE) for the year 2023. You can modify the `ticker`, `start_date`, and `end_date` variables in `main.py` to analyze different stocks or time periods.
+The script is configured to analyze ITC.NS (ITC Limited on NSE) with data cleaning (dropping 2021-03-31 period).
 
-Example output includes:
-- Historical data preview
-- Fundamental data summaries
-- Calculated financial ratios
+### Programmatic Usage
 
-Data files will be saved in the project directory:
-- `{ticker}_info.json`
-- `{ticker}_balance_sheet.csv`
-- `{ticker}_income_statement.csv`
-- `{ticker}_cash_flow.csv`
+Import and use the `FinancialRatioCalculator` class:
+
+```python
+from main import FinancialRatioCalculator
+
+# Initialize calculator
+calculator = FinancialRatioCalculator(
+    ticker="ITC.NS",
+    start_date="2023-01-01",
+    end_date="2023-12-31",
+    drop_periods=["2021-03-31"]  # Optional: drop problematic periods
+)
+
+# Run analysis and get DataFrame
+df_ratios = calculator.run(save_csv=True, verbose=True)
+
+# Access specific ratios
+current_ratio_trend = df_ratios.loc['Current Ratio']
+roe_comparison = df_ratios.loc[['Return on Equity (ROE)', 'DuPont ROE']]
+
+# Find ratios with highest variation
+ratio_variation = df_ratios.std(axis=1).sort_values(ascending=False)
+print(f"Most volatile ratios: {ratio_variation.head()}")
+```
+
+### Advanced Usage Examples
+
+See `example_usage.py` for comprehensive examples including:
+- Basic usage patterns
+- Programmatic data analysis
+- Custom ratio comparisons
+- Statistical analysis of ratio trends
+
+```bash
+python example_usage.py
+```
+
+## Output
+
+The calculator returns a pandas DataFrame with:
+- **Rows**: Ratio names (24+ financial ratios)
+- **Columns**: Fiscal periods (e.g., '2025-03-31', '2024-03-31', etc.)
+
+Example DataFrame structure:
+```
+                                2025-03-31  2024-03-31  2023-03-31  2022-03-31
+Current Ratio                     3.062156    2.999587    2.887379    2.814310
+Quick Ratio                       1.726978    1.747135    1.807195    1.574858
+Return on Equity (ROE)            0.280273    0.265700    0.275985    0.242633
+DuPont ROE                        0.280273    0.265700    0.275985    0.242633
+...
+```
+
+## Data Files
+
+The following files are automatically saved:
+- `{ticker}_info.json`: Company information and pre-calculated ratios
+- `{ticker}_balance_sheet.csv`: Balance sheet data
+- `{ticker}_income_statement.csv`: Income statement data
+- `{ticker}_cash_flow.csv`: Cash flow statement data
+- `{ticker}_multi_period_ratios.csv`: Calculated ratios DataFrame
 
 ## Requirements
 
@@ -63,20 +119,39 @@ Data files will be saved in the project directory:
 
 ## Project Structure
 
-- `main.py`: Main script for running the analysis
+- `main.py`: `FinancialRatioCalculator` class - main entry point for ratio calculations
+- `example_usage.py`: Comprehensive usage examples and demonstrations
 - `yahoo_finance_fetcher.py`: Module for fetching data from Yahoo Finance
-- `liquidity_ratios.py`: Module for calculating liquidity ratios
-- `solvency_ratios.py`: Module for calculating solvency ratios
-- `profitability_ratios.py`: Module for calculating profitability ratios and DuPont Analysis
-- `activity_ratios.py`: Module for calculating activity (efficiency) ratios
-- `market_ratios.py`: Module for calculating market ratios
+- `liquidity_ratios.py`: Liquidity ratio calculations
+- `solvency_ratios.py`: Solvency ratio calculations
+- `profitability_ratios.py`: Profitability ratios and DuPont Analysis
+- `activity_ratios.py`: Activity (efficiency) ratio calculations
 - `docs/`: Documentation for specific ratios
 - `assets/`: Sample data files
+
+## API Reference
+
+### FinancialRatioCalculator Class
+
+#### Constructor
+```python
+FinancialRatioCalculator(
+    ticker: str,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    drop_periods: Optional[List[str]] = None
+)
+```
+
+#### Methods
+- `fetch_data(save_files=True)`: Fetch and optionally save raw data
+- `calculate_ratios()`: Calculate all ratios and return DataFrame
+- `run(save_csv=True, verbose=True)`: Complete analysis pipeline
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
-              
+
 This project is open source. Please check the repository for license details.

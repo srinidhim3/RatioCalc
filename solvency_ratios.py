@@ -3,7 +3,7 @@
 Solvency Ratios Calculator module.
 """
 
-from typing import Optional
+from typing import Optional, Dict
 import pandas as pd
 
 
@@ -14,143 +14,140 @@ class SolvencyRatios:
 
     @staticmethod
     def debt_to_assets_ratio(
-        balance_sheet: pd.DataFrame, date: Optional[str] = None
-    ) -> float:
+        balance_sheet: pd.DataFrame,
+    ) -> Dict[str, Optional[float]]:
         """
-        Calculates the Debt-to-Assets Ratio from the balance sheet.
+        Calculates the Debt-to-Assets Ratio from the balance sheet for all available periods.
 
         Args:
             balance_sheet (pd.DataFrame): The balance sheet DataFrame.
-            date (str, optional): The date column to use (e.g., '2025-03-31'). If None, uses the latest date.
 
         Returns:
-            float: The Debt-to-Assets Ratio.
+            dict: The Debt-to-Assets Ratios with dates as keys.
 
         Raises:
             KeyError: If required keys are missing.
-            ZeroDivisionError: If total assets are zero.
         """
         if balance_sheet is None:
             raise ValueError("Balance sheet data is None.")
 
-        if date is None:
-            date = balance_sheet.columns[0]  # Latest date
+        ratios = {}
+        for d in balance_sheet.columns:
+            try:
+                total_debt = balance_sheet.at["Total Debt", d]
+                total_assets = balance_sheet.at["Total Assets", d]
 
-        try:
-            total_debt = balance_sheet.at["Total Debt", date]
-            total_assets = balance_sheet.at["Total Assets", date]
-        except KeyError as e:
-            raise KeyError(f"Required key missing in balance sheet: {e}")
+                def to_float(val, name: str) -> float:
+                    if pd.isna(val):
+                        raise ValueError(f"{name} is NaN or missing")
+                    if isinstance(val, complex):
+                        raise TypeError(
+                            f"{name} is a complex number and cannot be converted to float"
+                        )
+                    return float(val)
 
-        def to_float(val, name: str) -> float:
-            if pd.isna(val):
-                raise ValueError(f"{name} is NaN or missing")
-            if isinstance(val, complex):
-                raise TypeError(
-                    f"{name} is a complex number and cannot be converted to float"
-                )
-            return float(val)
+                debt = to_float(total_debt, "Total Debt")
+                assets = to_float(total_assets, "Total Assets")
 
-        debt = to_float(total_debt, "Total Debt")
-        assets = to_float(total_assets, "Total Assets")
-
-        if assets == 0:
-            raise ZeroDivisionError("Total assets are zero.")
-        return debt / assets
+                if assets == 0:
+                    ratios[d] = None
+                else:
+                    ratios[d] = debt / assets
+            except (KeyError, ValueError, TypeError):
+                ratios[d] = None
+        return ratios
 
     @staticmethod
     def financial_leverage_ratio(
-        balance_sheet: pd.DataFrame, date: Optional[str] = None
-    ) -> float:
+        balance_sheet: pd.DataFrame,
+    ) -> Dict[str, Optional[float]]:
         """
-        Calculates the Financial Leverage Ratio from the balance sheet.
+        Calculates the Financial Leverage Ratio from the balance sheet for all available periods.
 
         Args:
             balance_sheet (pd.DataFrame): The balance sheet DataFrame.
-            date (str, optional): The date column to use (e.g., '2025-03-31'). If None, uses the latest date.
 
         Returns:
-            float: The Financial Leverage Ratio.
+            dict: The Financial Leverage Ratios with dates as keys.
 
         Raises:
             KeyError: If required keys are missing.
-            ZeroDivisionError: If total equity is zero.
         """
         if balance_sheet is None:
             raise ValueError("Balance sheet data is None.")
 
-        if date is None:
-            date = balance_sheet.columns[0]  # Latest date
+        ratios = {}
+        for d in balance_sheet.columns:
+            try:
+                total_assets = balance_sheet.at["Total Assets", d]
+                total_equity = balance_sheet.at[
+                    "Total Equity Gross Minority Interest", d
+                ]
 
-        try:
-            total_assets = balance_sheet.at["Total Assets", date]
-            total_equity = balance_sheet.at[
-                "Total Equity Gross Minority Interest", date
-            ]
-        except KeyError as e:
-            raise KeyError(f"Required key missing in balance sheet: {e}")
+                def to_float(val, name: str) -> float:
+                    if pd.isna(val):
+                        raise ValueError(f"{name} is NaN or missing")
+                    if isinstance(val, complex):
+                        raise TypeError(
+                            f"{name} is a complex number and cannot be converted to float"
+                        )
+                    return float(val)
 
-        def to_float(val, name: str) -> float:
-            if pd.isna(val):
-                raise ValueError(f"{name} is NaN or missing")
-            if isinstance(val, complex):
-                raise TypeError(
-                    f"{name} is a complex number and cannot be converted to float"
-                )
-            return float(val)
+                assets = to_float(total_assets, "Total Assets")
+                equity = to_float(total_equity, "Total Equity Gross Minority Interest")
 
-        assets = to_float(total_assets, "Total Assets")
-        equity = to_float(total_equity, "Total Equity Gross Minority Interest")
-
-        if equity == 0:
-            raise ZeroDivisionError("Total equity is zero.")
-        return assets / equity
+                if equity == 0:
+                    ratios[d] = None
+                else:
+                    ratios[d] = assets / equity
+            except (KeyError, ValueError, TypeError):
+                ratios[d] = None
+        return ratios
 
     @staticmethod
     def interest_coverage_ratio(
-        income_statement: pd.DataFrame, date: Optional[str] = None
-    ) -> float:
+        income_statement: pd.DataFrame,
+    ) -> Dict[str, Optional[float]]:
         """
-        Calculates the Interest Coverage Ratio from the income statement.
+        Calculates the Interest Coverage Ratio from the income statement for all available periods.
 
         Args:
             income_statement (pd.DataFrame): The income statement DataFrame.
-            date (str, optional): The date column to use (e.g., '2025-03-31'). If None, uses the latest date.
 
         Returns:
-            float: The Interest Coverage Ratio.
+            dict: The Interest Coverage Ratios with dates as keys.
 
         Raises:
             KeyError: If required keys are missing.
-            ZeroDivisionError: If interest expense is zero.
         """
         if income_statement is None:
             raise ValueError("Income statement data is None.")
 
-        if date is None:
-            date = income_statement.columns[0]  # Latest date
+        ratios = {}
+        for d in income_statement.columns:
+            try:
+                ebit = income_statement.at["EBIT", d]
+                interest_expense = income_statement.at["Interest Expense", d]
 
-        try:
-            ebit = income_statement.at["EBIT", date]
-            interest_expense = income_statement.at["Interest Expense", date]
-        except KeyError as e:
-            raise KeyError(f"Required key missing in income statement: {e}")
+                def to_float(val, name: str) -> float:
+                    if pd.isna(val):
+                        raise ValueError(f"{name} is NaN or missing")
+                    if isinstance(val, complex):
+                        raise TypeError(
+                            f"{name} is a complex number and cannot be converted to float"
+                        )
+                    return float(val)
 
-        def to_float(val, name: str) -> float:
-            if pd.isna(val):
-                raise ValueError(f"{name} is NaN or missing")
-            if isinstance(val, complex):
-                raise TypeError(
-                    f"{name} is a complex number and cannot be converted to float"
-                )
-            return float(val)
+                ebit_val = to_float(ebit, "EBIT")
+                interest = to_float(interest_expense, "Interest Expense")
 
-        ebit_val = to_float(ebit, "EBIT")
-        interest = to_float(interest_expense, "Interest Expense")
-
-        if interest == 0:
-            raise ZeroDivisionError("Interest expense is zero.")
-        return ebit_val / interest
+                if interest == 0:
+                    ratios[d] = None
+                else:
+                    ratios[d] = ebit_val / interest
+            except (KeyError, ValueError, TypeError):
+                ratios[d] = None
+        return ratios
 
     @staticmethod
     def debt_to_equity_ratio_from_info(info: dict) -> float:
