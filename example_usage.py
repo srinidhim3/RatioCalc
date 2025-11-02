@@ -3,7 +3,7 @@
 Example usage of the FinancialRatioCalculator class.
 """
 
-from main import FinancialRatioCalculator
+from ratio_calc import FinancialRatioCalculator
 
 
 def main():
@@ -13,13 +13,17 @@ def main():
         ticker="ITC.NS",
         drop_periods=["2021-03-31"],  # Skip problematic periods
     )
-    df_ratios = calculator.run(save_csv=True, verbose=True)
+    df_ratios = calculator.run(verbose=True)
 
     # Example 2: Programmatic analysis
     print("\n=== Example 2: Programmatic Analysis ===")
     print(f"DataFrame shape: {df_ratios.shape}")
     print(f"Total ratios calculated: {len(df_ratios.index)}")
     print(f"Total periods analyzed: {len(df_ratios.columns)}")
+
+    # Calculate overall financial health score
+    overall_score = calculator.calculate_overall_score(df_ratios)
+    print(f"Overall Financial Health Score: {overall_score:.1f}/100")
 
     # Get current ratio trend
     try:

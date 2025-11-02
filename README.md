@@ -19,41 +19,49 @@ A Python-based financial ratios calculator that fetches stock data from Yahoo Fi
 
 ## Installation
 
+### From PyPI (Recommended)
+```bash
+pip install ratio-calc
+```
+
+### From Source
 1. Clone the repository:
    ```bash
    git clone https://github.com/srinidhim3/RatioCalc.git
    cd RatioCalc
    ```
 
-2. Create a virtual environment (recommended):
+2. Install the package:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install .
    ```
 
-3. Install dependencies:
+   Or for development:
    ```bash
-   pip install -r requirements.txt
+   pip install -e .
    ```
 
 ## Usage
 
 ### Command Line Usage
 
-Run the main script with default settings:
+After installation, use the command-line interface:
 
 ```bash
-python main.py
+ratio-calc ITC.NS
 ```
 
-The script is configured to analyze ITC.NS (ITC Limited on NSE) with data cleaning (dropping 2021-03-31 period).
+Or with options:
+```bash
+ratio-calc AAPL --start-date 2023-01-01 --end-date 2023-12-31 --drop-periods 2021-03-31
+```
 
 ### Programmatic Usage
 
 Import and use the `FinancialRatioCalculator` class:
 
 ```python
-from main import FinancialRatioCalculator
+from ratio_calc import FinancialRatioCalculator
 
 # Initialize calculator
 calculator = FinancialRatioCalculator(
@@ -64,7 +72,7 @@ calculator = FinancialRatioCalculator(
 )
 
 # Run analysis and get DataFrame
-df_ratios = calculator.run(save_csv=True, verbose=True)
+df_ratios = calculator.run(verbose=True)
 
 # Access specific ratios
 current_ratio_trend = df_ratios.loc['Current Ratio']
@@ -103,15 +111,6 @@ DuPont ROE                        0.280273    0.265700    0.275985    0.242633
 ...
 ```
 
-## Data Files
-
-The following files are automatically saved:
-- `{ticker}_info.json`: Company information and pre-calculated ratios
-- `{ticker}_balance_sheet.csv`: Balance sheet data
-- `{ticker}_income_statement.csv`: Income statement data
-- `{ticker}_cash_flow.csv`: Cash flow statement data
-- `{ticker}_multi_period_ratios.csv`: Calculated ratios DataFrame
-
 ## Requirements
 
 - Python 3.7+
@@ -119,15 +118,21 @@ The following files are automatically saved:
 
 ## Project Structure
 
-- `main.py`: `FinancialRatioCalculator` class - main entry point for ratio calculations
-- `example_usage.py`: Comprehensive usage examples and demonstrations
-- `yahoo_finance_fetcher.py`: Module for fetching data from Yahoo Finance
-- `liquidity_ratios.py`: Liquidity ratio calculations
-- `solvency_ratios.py`: Solvency ratio calculations
-- `profitability_ratios.py`: Profitability ratios and DuPont Analysis
-- `activity_ratios.py`: Activity (efficiency) ratio calculations
-- `docs/`: Documentation for specific ratios
-- `assets/`: Sample data files
+```
+ratio_calc/
+├── __init__.py                 # Package initialization and exports
+├── calculator.py               # FinancialRatioCalculator class - main entry point
+├── yahoo_finance_fetcher.py    # Yahoo Finance data fetching
+├── liquidity_ratios.py         # Liquidity ratio calculations
+├── solvency_ratios.py          # Solvency ratio calculations
+├── profitability_ratios.py     # Profitability ratios and DuPont Analysis
+├── activity_ratios.py          # Activity (efficiency) ratio calculations
+└── market_ratios.py           # Market ratio calculations (future use)
+
+example_usage.py                # Comprehensive usage examples
+docs/                          # Documentation for specific ratios
+assets/                        # Sample data files
+```
 
 ## API Reference
 
@@ -135,6 +140,8 @@ The following files are automatically saved:
 
 #### Constructor
 ```python
+from ratio_calc import FinancialRatioCalculator
+
 FinancialRatioCalculator(
     ticker: str,
     start_date: Optional[str] = None,
@@ -144,9 +151,9 @@ FinancialRatioCalculator(
 ```
 
 #### Methods
-- `fetch_data(save_files=True)`: Fetch and optionally save raw data
+- `fetch_data()`: Fetch fundamental data from Yahoo Finance
 - `calculate_ratios()`: Calculate all ratios and return DataFrame
-- `run(save_csv=True, verbose=True)`: Complete analysis pipeline
+- `run(verbose=True)`: Complete analysis pipeline
 
 ## Contributing
 

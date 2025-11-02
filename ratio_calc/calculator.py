@@ -13,7 +13,7 @@ Key Features:
 - Saves raw data and results to CSV files
 
 Basic Usage:
-    from main import FinancialRatioCalculator
+    from ratio_calc import FinancialRatioCalculator
 
     calculator = FinancialRatioCalculator(ticker="ITC.NS", drop_periods=["2021-03-31"])
     df_ratios = calculator.run()
@@ -23,19 +23,18 @@ Basic Usage:
     roe_trend = df_ratios.loc['Return on Equity (ROE)']
 
 Command Line Usage:
-    python main.py
+    python -m ratio_calc.calculator
 
 For comprehensive examples, see example_usage.py
 """
 
-import json
 from typing import Dict, List, Optional, Any
 import pandas as pd
-from yahoo_finance_fetcher import YahooFinanceFetcher
-from liquidity_ratios import LiquidityRatios
-from solvency_ratios import SolvencyRatios
-from profitability_ratios import ProfitabilityRatios
-from activity_ratios import ActivityRatios
+from .yahoo_finance_fetcher import YahooFinanceFetcher
+from .liquidity_ratios import LiquidityRatios
+from .solvency_ratios import SolvencyRatios
+from .profitability_ratios import ProfitabilityRatios
+from .activity_ratios import ActivityRatios
 
 
 class FinancialRatioCalculator:
@@ -71,12 +70,9 @@ class FinancialRatioCalculator:
         self.fundamentals: Optional[Dict[str, Any]] = None
         self.historical_data: Optional[pd.DataFrame] = None
 
-    def fetch_data(self, save_files=True):
+    def fetch_data(self):
         """
         Fetch historical and fundamental data from Yahoo Finance.
-
-        Args:
-            save_files (bool): Whether to save raw data to CSV/JSON files
 
         Returns:
             dict: Dictionary containing 'fundamentals' and 'historical_data'
@@ -95,10 +91,6 @@ class FinancialRatioCalculator:
         if self.fundamentals is None:
             raise Exception(f"Failed to fetch fundamental data for {self.ticker}")
 
-        # Save raw data if requested
-        if save_files:
-            self._save_raw_data()
-
         # Clean data by dropping specified periods
         self._clean_data()
 
@@ -106,22 +98,6 @@ class FinancialRatioCalculator:
             "fundamentals": self.fundamentals,
             "historical_data": self.historical_data,
         }
-
-    def _save_raw_data(self) -> None:
-        """Save raw fundamental data to files."""
-        assert self.fundamentals is not None  # Already checked in fetch_data
-
-        with open(f"{self.ticker}_info.json", "w") as f:
-            json.dump(self.fundamentals["info"], f, indent=4)
-        self.fundamentals["balance_sheet"].to_csv(f"{self.ticker}_balance_sheet.csv")
-        self.fundamentals["income_statement"].to_csv(
-            f"{self.ticker}_income_statement.csv"
-        )
-        self.fundamentals["cash_flow"].to_csv(f"{self.ticker}_cash_flow.csv")
-        print(
-            f"\nFundamental data saved to {self.ticker}_info.json, {self.ticker}_balance_sheet.csv, "
-            f"{self.ticker}_income_statement.csv, and {self.ticker}_cash_flow.csv"
-        )
 
     def _clean_data(self) -> None:
         """Clean the data by dropping specified periods."""
@@ -400,13 +376,12 @@ class FinancialRatioCalculator:
         except Exception as e:
             print(f"Error calculating DuPont Analysis: {e}")
 
-    def run(self, save_csv: bool = True, verbose: bool = True) -> pd.DataFrame:
+    def run(self, verbose: bool = True) -> pd.DataFrame:
         """
-        Run the complete analysis: fetch data, calculate ratios, and optionally save results.
+        Run the complete analysis: fetch data and calculate ratios.
 
         Args:
-            save_csv (bool): Whether to save the ratios DataFrame to CSV
-            verbose (bool): Whether to print progress information
+            verbose (bool): Whether to print progress information and overall score
 
         Returns:
             pd.DataFrame: DataFrame containing all calculated ratios
@@ -423,18 +398,87 @@ class FinancialRatioCalculator:
         # Calculate ratios
         df_ratios = self.calculate_ratios()
 
-        # Save to CSV if requested
-        if save_csv and not df_ratios.empty:
-            csv_filename = f"{self.ticker}_multi_period_ratios.csv"
-            df_ratios.to_csv(csv_filename)
-            if verbose:
-                print(f"\nMulti-period ratios saved to {csv_filename}")
-
         if verbose and not df_ratios.empty:
             print(f"\nMulti-period Ratios for {self.ticker}:")
             print(df_ratios.to_string())
+            overall_score = self.calculate_overall_score(df_ratios)
+            print(f"\nOverall Financial Health Score: {overall_score:.1f}/100")
 
         return df_ratios
+
+    def calculate_overall_score(self, df_ratios, weights=None):
+        """
+        Calculate an overall financial health score from all ratios.
+
+        Args:
+            df_ratios (pd.DataFrame): DataFrame of ratios from calculate_ratios()
+            weights (dict, optional): Custom weights for each ratio
+
+        Returns:
+            float: Overall score from 0-100
+        """
+        directions = {
+            "Current Ratio": "higher_better",
+            "Quick Ratio": "higher_better",
+            "Cash Ratio": "higher_better",
+            "Defensive Interval Ratio": "higher_better",
+            "Debt-to-Assets Ratio": "lower_better",
+            "Financial Leverage Ratio": "lower_better",
+            "Interest Coverage Ratio": "higher_better",
+            "Return on Assets (ROA)": "higher_better",
+            "Return on Equity (ROE)": "higher_better",
+            "Return on Total Capital (ROTC)": "higher_better",
+            "Return on Common Equity (ROCE)": "higher_better",
+            "Inventory Turnover": "higher_better",
+            "Days of Inventory on Hand (DOH)": "lower_better",
+            "Receivables Turnover": "higher_better",
+            "Days of Sales Outstanding (DSO)": "lower_better",
+            "Payables Turnover": "higher_better",
+            "Number of Days of Payables": "lower_better",
+            "Working Capital Turnover": "higher_better",
+            "Fixed Asset Turnover": "higher_better",
+            "Total Asset Turnover": "higher_better",
+            # "DuPont ROE": "higher_better",
+            # "DuPont Net Profit Margin": "higher_better",
+            # "DuPont Asset Turnover": "higher_better",
+            # "DuPont Financial Leverage": "higher_better",
+        }
+
+        scores = {}
+        current_values = df_ratios.iloc[:, 0]  # Most recent period
+
+        for ratio in df_ratios.index:
+            if ratio not in directions:
+                continue  # Skip ratios not explicitly included in scoring
+            hist_values = df_ratios.loc[ratio].dropna()
+            if len(hist_values) < 2:
+                scores[ratio] = 0.5
+                continue
+            current = current_values[ratio]
+            min_hist = hist_values.min()
+            max_hist = hist_values.max()
+            if max_hist == min_hist:
+                if directions.get(ratio, "higher_better") == "higher_better":
+                    scores[ratio] = 1.0 if current >= min_hist else 0.0
+                else:
+                    scores[ratio] = 1.0 if current <= min_hist else 0.0
+            else:
+                if directions.get(ratio, "higher_better") == "higher_better":
+                    scores[ratio] = min(
+                        1.0, (current - min_hist) / (max_hist - min_hist)
+                    )
+                else:
+                    scores[ratio] = max(
+                        0.0, 1.0 - (current - min_hist) / (max_hist - min_hist)
+                    )
+
+        weights = weights or {ratio: 1.0 for ratio in scores}
+        total_weight = sum(weights.values())
+        final_score = (
+            sum(weights[ratio] * scores[ratio] for ratio in scores if ratio in weights)
+            / total_weight
+        )
+        return final_score * 100
 
 
 if __name__ == "__main__":
@@ -451,6 +495,54 @@ if __name__ == "__main__":
 
     # Example of programmatic usage:
     # calculator = FinancialRatioCalculator(ticker="AAPL")
-    # df = calculator.run(save_csv=False, verbose=False)
+    # df = calculator.run(verbose=False)
     # print(f"AAPL has {len(df.columns)} periods of data")
     # print(f"Current Ratio trend: {df.loc['Current Ratio'].tolist()}")
+
+
+def main():
+    """
+    Command-line entry point for the financial ratio calculator.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Calculate comprehensive financial ratios from Yahoo Finance data"
+    )
+    parser.add_argument(
+        "ticker",
+        nargs="?",
+        default="ITC.NS",
+        help="Stock ticker symbol (default: ITC.NS)",
+    )
+    parser.add_argument(
+        "--start-date", help="Start date for data fetching (YYYY-MM-DD)"
+    )
+    parser.add_argument("--end-date", help="End date for data fetching (YYYY-MM-DD)")
+    parser.add_argument(
+        "--drop-periods", nargs="*", help="Fiscal periods to drop (e.g., 2021-03-31)"
+    )
+    parser.add_argument("--quiet", action="store_true", help="Suppress verbose output")
+
+    args = parser.parse_args()
+
+    # Initialize calculator
+    calculator = FinancialRatioCalculator(
+        ticker=args.ticker,
+        start_date=args.start_date,
+        end_date=args.end_date,
+        drop_periods=args.drop_periods,
+    )
+
+    # Run analysis
+    df_ratios = calculator.run(verbose=not args.quiet)
+
+    if not args.quiet:
+        print(f"\nAnalysis complete for {args.ticker}")
+        print(
+            f"Calculated {len(df_ratios)} ratios across {len(df_ratios.columns)} periods"
+        )
+
+
+if __name__ == "__main__":
+    main()

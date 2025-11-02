@@ -313,14 +313,14 @@ class ProfitabilityRatios:
             raise KeyError("profitMargins not found in info")
 
         # Calculate Total Asset Turnover
-        from activity_ratios import ActivityRatios
+        from .activity_ratios import ActivityRatios
 
         asset_turnover = ActivityRatios.total_asset_turnover(
             income_statement, balance_sheet
         )
 
         # Calculate Financial Leverage
-        from solvency_ratios import SolvencyRatios
+        from .solvency_ratios import SolvencyRatios
 
         leverage = SolvencyRatios.financial_leverage_ratio(balance_sheet)
 
