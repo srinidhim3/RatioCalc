@@ -10,7 +10,6 @@ Key Features:
 - Calculates 24+ financial ratios including liquidity, solvency, profitability, activity, and DuPont analysis
 - Returns clean pandas DataFrame for programmatic analysis
 - Supports data cleaning (dropping problematic periods)
-- Saves raw data and results to CSV files
 
 Basic Usage:
     from ratio_calc import FinancialRatioCalculator
@@ -49,8 +48,6 @@ class FinancialRatioCalculator:
     def __init__(
         self,
         ticker: str,
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None,
         drop_periods: Optional[List[str]] = None,
     ):
         """
@@ -58,34 +55,23 @@ class FinancialRatioCalculator:
 
         Args:
             ticker (str): Stock ticker symbol (e.g., 'ITC.NS')
-            start_date (str, optional): Start date for historical data in YYYY-MM-DD format
-            end_date (str, optional): End date for historical data in YYYY-MM-DD format
             drop_periods (list, optional): List of period columns to drop (e.g., ['2021-03-31'])
         """
         self.ticker = ticker
-        self.start_date = start_date
-        self.end_date = end_date
         self.drop_periods = drop_periods or []
         self.fetcher = YahooFinanceFetcher()
         self.fundamentals: Optional[Dict[str, Any]] = None
-        self.historical_data: Optional[pd.DataFrame] = None
 
     def fetch_data(self):
         """
-        Fetch historical and fundamental data from Yahoo Finance.
+        Fetch fundamental data from Yahoo Finance.
 
         Returns:
-            dict: Dictionary containing 'fundamentals' and 'historical_data'
+            dict: Dictionary containing 'fundamentals'
 
         Raises:
             Exception: If data fetching fails
         """
-        # Fetch historical data
-        if self.start_date and self.end_date:
-            self.historical_data = self.fetcher.fetch_historical_data(
-                self.ticker, self.start_date, self.end_date
-            )
-
         # Fetch fundamental data
         self.fundamentals = self.fetcher.fetch_fundamentals(self.ticker)
         if self.fundamentals is None:
@@ -96,7 +82,6 @@ class FinancialRatioCalculator:
 
         return {
             "fundamentals": self.fundamentals,
-            "historical_data": self.historical_data,
         }
 
     def _clean_data(self) -> None:
@@ -485,8 +470,6 @@ if __name__ == "__main__":
     # Example usage
     calculator = FinancialRatioCalculator(
         ticker="ITC.NS",
-        start_date="2023-01-01",
-        end_date="2023-12-31",
         drop_periods=["2021-03-31"],
     )
 
@@ -516,10 +499,6 @@ def main():
         help="Stock ticker symbol (default: ITC.NS)",
     )
     parser.add_argument(
-        "--start-date", help="Start date for data fetching (YYYY-MM-DD)"
-    )
-    parser.add_argument("--end-date", help="End date for data fetching (YYYY-MM-DD)")
-    parser.add_argument(
         "--drop-periods", nargs="*", help="Fiscal periods to drop (e.g., 2021-03-31)"
     )
     parser.add_argument("--quiet", action="store_true", help="Suppress verbose output")
@@ -529,8 +508,6 @@ def main():
     # Initialize calculator
     calculator = FinancialRatioCalculator(
         ticker=args.ticker,
-        start_date=args.start_date,
-        end_date=args.end_date,
         drop_periods=args.drop_periods,
     )
 
