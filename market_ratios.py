@@ -101,3 +101,98 @@ class MarketRatios:
         payout_val = to_float(payout_ratio, "payoutRatio")
 
         return 1 - payout_val
+
+    @staticmethod
+    def price_to_earnings_ratio_from_info(info: Dict[str, Any]) -> float:
+        """
+        Get Price-to-Earnings Ratio from Yahoo Finance info.
+
+        Args:
+            info (dict): The company info dictionary from Yahoo Finance.
+
+        Returns:
+            float: The Price-to-Earnings Ratio.
+
+        Raises:
+            KeyError: If trailingPE is not found in info.
+        """
+        try:
+            return info["trailingPE"]
+        except KeyError:
+            raise KeyError("trailingPE not found in info")
+
+    @staticmethod
+    def price_to_book_ratio_from_info(info: Dict[str, Any]) -> float:
+        """
+        Get Price-to-Book Ratio from Yahoo Finance info.
+
+        Args:
+            info (dict): The company info dictionary from Yahoo Finance.
+
+        Returns:
+            float: The Price-to-Book Ratio.
+
+        Raises:
+            KeyError: If priceToBook is not found in info.
+        """
+        try:
+            return info["priceToBook"]
+        except KeyError:
+            raise KeyError("priceToBook not found in info")
+
+    @staticmethod
+    def price_to_sales_ratio_from_info(info: Dict[str, Any]) -> float:
+        """
+        Get Price-to-Sales Ratio from Yahoo Finance info.
+
+        Args:
+            info (dict): The company info dictionary from Yahoo Finance.
+
+        Returns:
+            float: The Price-to-Sales Ratio.
+
+        Raises:
+            KeyError: If priceToSalesTrailing12Months is not found in info.
+        """
+        try:
+            return info["priceToSalesTrailing12Months"]
+        except KeyError:
+            raise KeyError("priceToSalesTrailing12Months not found in info")
+
+    @staticmethod
+    def dividend_yield_from_info(info: Dict[str, Any]) -> float:
+        """
+        Get Dividend Yield from Yahoo Finance info.
+
+        Args:
+            info (dict): The company info dictionary from Yahoo Finance.
+
+        Returns:
+            float: The Dividend Yield.
+
+        Raises:
+            KeyError: If trailingAnnualDividendYield is not found in info.
+        """
+        try:
+            return info["trailingAnnualDividendYield"]
+        except KeyError:
+            raise KeyError("trailingAnnualDividendYield not found in info")
+
+    @staticmethod
+    def dividend_payout_ratio_from_info(info: Dict[str, Any]) -> float:
+        """
+        Get Dividend Payout Ratio from Yahoo Finance info.
+
+        Args:
+            info (dict): The company info dictionary from Yahoo Finance.
+
+        Returns:
+            float: The Dividend Payout Ratio.
+
+        Raises:
+            KeyError: If payoutRatio is not found in info.
+        """
+        try:
+            return info["payoutRatio"]
+        except KeyError:
+            raise KeyError("payoutRatio not found in info")

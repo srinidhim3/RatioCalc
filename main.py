@@ -329,3 +329,106 @@ if __name__ == "__main__":
             print(f"Error calculating Retention Rate: Missing key {e}")
         except Exception as e:
             print(f"Error calculating Retention Rate: {e}")
+
+        # Yahoo Finance Ratios
+        print(f"\nYahoo Finance Ratios for {ticker}:")
+
+        # Profitability Ratios from Yahoo Finance
+        try:
+            gross_margin = ProfitabilityRatios.gross_profit_margin_from_info(
+                fundamentals["info"]
+            )
+            print(f"Gross Profit Margin: {gross_margin:.6f}")
+        except KeyError as e:
+            print(f"Error retrieving Gross Profit Margin: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Gross Profit Margin: {e}")
+
+        try:
+            operating_margin = ProfitabilityRatios.operating_profit_margin_from_info(
+                fundamentals["info"]
+            )
+            print(f"Operating Profit Margin: {operating_margin:.6f}")
+        except KeyError as e:
+            print(f"Error retrieving Operating Profit Margin: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Operating Profit Margin: {e}")
+
+        try:
+            net_margin = ProfitabilityRatios.net_profit_margin_from_info(
+                fundamentals["info"]
+            )
+            print(f"Net Profit Margin: {net_margin:.6f}")
+        except KeyError as e:
+            print(f"Error retrieving Net Profit Margin: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Net Profit Margin: {e}")
+
+        # Market Ratios from Yahoo Finance
+        try:
+            pe_ratio = MarketRatios.price_to_earnings_ratio_from_info(
+                fundamentals["info"]
+            )
+            print(f"Price-to-Earnings Ratio: {pe_ratio:.6f}")
+        except KeyError as e:
+            print(f"Error retrieving Price-to-Earnings Ratio: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Price-to-Earnings Ratio: {e}")
+
+        try:
+            pb_ratio = MarketRatios.price_to_book_ratio_from_info(fundamentals["info"])
+            print(f"Price-to-Book Ratio: {pb_ratio:.6f}")
+        except KeyError as e:
+            print(f"Error retrieving Price-to-Book Ratio: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Price-to-Book Ratio: {e}")
+
+        try:
+            ps_ratio = MarketRatios.price_to_sales_ratio_from_info(fundamentals["info"])
+            print(f"Price-to-Sales Ratio: {ps_ratio:.6f}")
+        except KeyError as e:
+            print(f"Error retrieving Price-to-Sales Ratio: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Price-to-Sales Ratio: {e}")
+
+        try:
+            div_yield = MarketRatios.dividend_yield_from_info(fundamentals["info"])
+            print(f"Dividend Yield: {div_yield:.6f}")
+        except KeyError as e:
+            print(f"Error retrieving Dividend Yield: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Dividend Yield: {e}")
+
+        try:
+            div_payout = MarketRatios.dividend_payout_ratio_from_info(
+                fundamentals["info"]
+            )
+            print(f"Dividend Payout Ratio: {div_payout:.6f}")
+        except KeyError as e:
+            print(f"Error retrieving Dividend Payout Ratio: Missing key {e}")
+        except Exception as e:
+            print(f"Error retrieving Dividend Payout Ratio: {e}")
+
+        # DuPont Analysis
+        print(f"\nDuPont Analysis for {ticker}:")
+        try:
+            dupont = ProfitabilityRatios.dupont_analysis(
+                fundamentals["income_statement"],
+                fundamentals["balance_sheet"],
+                fundamentals["info"],
+            )
+            print(f"ROE: {dupont['roe']:.6f}")
+            print(f"Net Profit Margin: {dupont['net_profit_margin']:.6f}")
+            print(f"Asset Turnover: {dupont['asset_turnover']:.6f}")
+            print(f"Financial Leverage: {dupont['financial_leverage']:.6f}")
+            # Verify: ROE should equal NPM × AT × FL
+            calculated_roe = (
+                dupont["net_profit_margin"]
+                * dupont["asset_turnover"]
+                * dupont["financial_leverage"]
+            )
+            print(f"Calculated ROE (NPM × AT × FL): {calculated_roe:.6f}")
+        except KeyError as e:
+            print(f"Error performing DuPont Analysis: Missing key {e}")
+        except Exception as e:
+            print(f"Error performing DuPont Analysis: {e}")

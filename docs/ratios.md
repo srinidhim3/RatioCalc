@@ -15,7 +15,7 @@ This document lists all the financial ratios discussed in the CFA Level 1 curric
 
 | Ratio Name | Formula | Availability |
 |------------|---------|--------------|
-| Debt-to-Equity Ratio | Total Debt / Total Equity | Available from Yahoo Finance |
+| Debt-to-Equity Ratio | Total Debt / Total Equity | Calculated |
 | Debt-to-Assets Ratio | Total Debt / Total Assets | Calculated |
 | Financial Leverage Ratio | Total Assets / Total Equity | Calculated |
 | Interest Coverage Ratio | EBIT / Interest Expense | Calculated |
@@ -24,9 +24,9 @@ This document lists all the financial ratios discussed in the CFA Level 1 curric
 
 | Ratio Name | Formula | Availability |
 |------------|---------|--------------|
-| Gross Profit Margin | (Revenue - Cost of Goods Sold) / Revenue | Available from Yahoo Finance |
-| Operating Profit Margin | Operating Income / Revenue | Available from Yahoo Finance |
-| Net Profit Margin | Net Income / Revenue | Available from Yahoo Finance |
+| Gross Profit Margin | (Revenue - Cost of Goods Sold) / Revenue | Calculated |
+| Operating Profit Margin | Operating Income / Revenue | Calculated |
+| Net Profit Margin | Net Income / Revenue | Calculated |
 | Return on Assets (ROA) | Net Income / Total Assets | Calculated |
 | Return on Equity (ROE) | Net Income / Shareholders' Equity | Calculated |
 | Return on Total Capital | EBIT / (Debt + Equity) | Calculated |
@@ -50,20 +50,19 @@ This document lists all the financial ratios discussed in the CFA Level 1 curric
 
 | Ratio Name | Formula | Availability |
 |------------|---------|--------------|
-| Price-to-Earnings (P/E) Ratio | Market Price per Share / Earnings per Share (EPS) | Available from Yahoo Finance |
-| Price-to-Book (P/B) Ratio | Market Price per Share / Book Value per Share | Available from Yahoo Finance |
-| Price-to-Sales (P/S) Ratio | Market Price per Share / Sales per Share | Available from Yahoo Finance |
+| Price-to-Earnings (P/E) Ratio | Market Price per Share / Earnings per Share (EPS) | Calculated |
+| Price-to-Book (P/B) Ratio | Market Price per Share / Book Value per Share | Calculated |
+| Price-to-Sales (P/S) Ratio | Market Price per Share / Sales per Share | Calculated |
 | Price-to-Cash Flow Ratio | Market Price per Share / Cash Flow per Share | Calculated |
-| Dividend Yield | Dividends per Share / Market Price per Share | Available from Yahoo Finance |
-| Dividend Payout Ratio | Dividends per Share / Earnings per Share | Available from Yahoo Finance |
+| Dividend Yield | Dividends per Share / Market Price per Share | Calculated |
+| Dividend Payout Ratio | Dividends per Share / Earnings per Share | Calculated |
 | Retention Rate | 1 - Dividend Payout Ratio | Calculated |
 
 ## Other Related Concepts
 
 | Concept | Description | Availability |
 |---------|-------------|--------------|
-| DuPont Analysis | ROE = (Net Profit Margin) × (Asset Turnover) × (Financial Leverage) | To be calculated |
-| Common-Size Analysis | Expressing items as a percentage of a base (e.g., total assets or revenue) | To be calculated |
-| Trend Analysis | Comparing ratios over time | To be calculated |
+| DuPont Analysis | ROE = (Net Profit Margin) × (Asset Turnover) × (Financial Leverage) | Calculated |
+
 
 Note: This list is based on the standard CFA Level 1 curriculum. Formulas may vary slightly based on context (e.g., average vs. end-of-period values). "Available from Yahoo Finance" means pre-calculated in the info data; "To be calculated" means derived from raw financial statements. For detailed explanations and examples, refer to the official CFA Institute materials or study guides.

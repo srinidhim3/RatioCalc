@@ -3,7 +3,7 @@
 Profitability Ratios Calculator module.
 """
 
-from typing import Optional
+from typing import Optional, Dict, Any
 import pandas as pd
 
 
@@ -228,3 +228,120 @@ class ProfitabilityRatios:
         if equity == 0:
             raise ZeroDivisionError("Common shareholders' equity is zero.")
         return net_inc / equity
+
+    @staticmethod
+    def gross_profit_margin_from_info(info: Dict[str, Any]) -> float:
+        """
+        Get Gross Profit Margin from Yahoo Finance info.
+
+        Args:
+            info (dict): The company info dictionary from Yahoo Finance.
+
+        Returns:
+            float: The Gross Profit Margin.
+
+        Raises:
+            KeyError: If grossMargins is not found in info.
+        """
+        try:
+            return info["grossMargins"]
+        except KeyError:
+            raise KeyError("grossMargins not found in info")
+
+    @staticmethod
+    def operating_profit_margin_from_info(info: Dict[str, Any]) -> float:
+        """
+        Get Operating Profit Margin from Yahoo Finance info.
+
+        Args:
+            info (dict): The company info dictionary from Yahoo Finance.
+
+        Returns:
+            float: The Operating Profit Margin.
+
+        Raises:
+            KeyError: If operatingMargins is not found in info.
+        """
+        try:
+            return info["operatingMargins"]
+        except KeyError:
+            raise KeyError("operatingMargins not found in info")
+
+    @staticmethod
+    def net_profit_margin_from_info(info: Dict[str, Any]) -> float:
+        """
+        Get Net Profit Margin from Yahoo Finance info.
+
+        Args:
+            info (dict): The company info dictionary from Yahoo Finance.
+
+        Returns:
+            float: The Net Profit Margin.
+
+        Raises:
+            KeyError: If profitMargins is not found in info.
+        """
+        try:
+            return info["profitMargins"]
+        except KeyError:
+            raise KeyError("profitMargins not found in info")
+
+    @staticmethod
+    def dupont_analysis(
+        income_statement: pd.DataFrame,
+        balance_sheet: pd.DataFrame,
+        info: Dict[str, Any],
+        date: Optional[str] = None,
+    ) -> Dict[str, float]:
+        """
+        Performs DuPont Analysis to break down ROE into its components.
+
+        ROE = Net Profit Margin × Total Asset Turnover × Financial Leverage
+
+        Args:
+            income_statement (pd.DataFrame): The income statement DataFrame.
+            balance_sheet (pd.DataFrame): The balance sheet DataFrame.
+            info (dict): The company info dictionary from Yahoo Finance.
+            date (str, optional): The date column to use. If None, uses the latest date.
+
+        Returns:
+            dict: A dictionary containing ROE and its components:
+                - 'roe': Return on Equity
+                - 'net_profit_margin': Net Profit Margin
+                - 'asset_turnover': Total Asset Turnover
+                - 'financial_leverage': Financial Leverage
+
+        Raises:
+            KeyError: If required keys are missing.
+            ZeroDivisionError: If calculations result in division by zero.
+            ValueError: If data is invalid.
+        """
+        # Calculate Net Profit Margin
+        try:
+            net_profit_margin = info["profitMargins"]
+        except KeyError:
+            raise KeyError("profitMargins not found in info")
+
+        # Calculate Total Asset Turnover
+        from activity_ratios import ActivityRatios
+
+        asset_turnover = ActivityRatios.total_asset_turnover(
+            income_statement, balance_sheet, date
+        )
+
+        # Calculate Financial Leverage
+        from solvency_ratios import SolvencyRatios
+
+        leverage = SolvencyRatios.financial_leverage_ratio(balance_sheet, date)
+
+        # Calculate ROE
+        roe = ProfitabilityRatios.return_on_equity(
+            income_statement, balance_sheet, date
+        )
+
+        return {
+            "roe": roe,
+            "net_profit_margin": net_profit_margin,
+            "asset_turnover": asset_turnover,
+            "financial_leverage": leverage,
+        }
