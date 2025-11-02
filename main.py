@@ -9,6 +9,8 @@ from yahoo_finance_fetcher import YahooFinanceFetcher
 from liquidity_ratios import LiquidityRatios
 from solvency_ratios import SolvencyRatios
 from profitability_ratios import ProfitabilityRatios
+from activity_ratios import ActivityRatios
+from market_ratios import MarketRatios
 
 
 if __name__ == "__main__":
@@ -192,3 +194,138 @@ if __name__ == "__main__":
             print(f"Error calculating Defensive Interval Ratio: Missing key {e}")
         except Exception as e:
             print(f"Error calculating Defensive Interval Ratio: {e}")
+
+        # Calculate Inventory Turnover
+        try:
+            inventory_turnover = ActivityRatios.inventory_turnover(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Inventory Turnover for {ticker} ({latest_date}): {inventory_turnover:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Inventory Turnover: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Inventory Turnover: {e}")
+
+        # Calculate Days of Inventory on Hand (DOH)
+        try:
+            doh = ActivityRatios.days_of_inventory_on_hand(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Days of Inventory on Hand (DOH) for {ticker} ({latest_date}): {doh:.6f} days"
+            )
+        except KeyError as e:
+            print(f"Error calculating Days of Inventory on Hand (DOH): Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Days of Inventory on Hand (DOH): {e}")
+
+        # Calculate Receivables Turnover
+        try:
+            receivables_turnover = ActivityRatios.receivables_turnover(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Receivables Turnover for {ticker} ({latest_date}): {receivables_turnover:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Receivables Turnover: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Receivables Turnover: {e}")
+
+        # Calculate Days of Sales Outstanding (DSO)
+        try:
+            dso = ActivityRatios.days_of_sales_outstanding(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Days of Sales Outstanding (DSO) for {ticker} ({latest_date}): {dso:.6f} days"
+            )
+        except KeyError as e:
+            print(f"Error calculating Days of Sales Outstanding (DSO): Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Days of Sales Outstanding (DSO): {e}")
+
+        # Calculate Payables Turnover
+        try:
+            payables_turnover = ActivityRatios.payables_turnover(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Payables Turnover for {ticker} ({latest_date}): {payables_turnover:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Payables Turnover: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Payables Turnover: {e}")
+
+        # Calculate Number of Days of Payables
+        try:
+            days_payables = ActivityRatios.number_of_days_of_payables(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Number of Days of Payables for {ticker} ({latest_date}): {days_payables:.6f} days"
+            )
+        except KeyError as e:
+            print(f"Error calculating Number of Days of Payables: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Number of Days of Payables: {e}")
+
+        # Calculate Working Capital Turnover
+        try:
+            wc_turnover = ActivityRatios.working_capital_turnover(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Working Capital Turnover for {ticker} ({latest_date}): {wc_turnover:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Working Capital Turnover: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Working Capital Turnover: {e}")
+
+        # Calculate Fixed Asset Turnover
+        try:
+            fa_turnover = ActivityRatios.fixed_asset_turnover(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Fixed Asset Turnover for {ticker} ({latest_date}): {fa_turnover:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Fixed Asset Turnover: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Fixed Asset Turnover: {e}")
+
+        # Calculate Total Asset Turnover
+        try:
+            ta_turnover = ActivityRatios.total_asset_turnover(
+                fundamentals["income_statement"], fundamentals["balance_sheet"]
+            )
+            print(
+                f"Calculated Total Asset Turnover for {ticker} ({latest_date}): {ta_turnover:.6f}"
+            )
+        except KeyError as e:
+            print(f"Error calculating Total Asset Turnover: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Total Asset Turnover: {e}")
+
+        # Calculate Price-to-Cash Flow Ratio from info
+        try:
+            ptcf_ratio = MarketRatios.price_to_cash_flow_ratio(fundamentals["info"])
+            print(f"Calculated Price-to-Cash Flow Ratio for {ticker}: {ptcf_ratio:.6f}")
+        except KeyError as e:
+            print(f"Error calculating Price-to-Cash Flow Ratio: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Price-to-Cash Flow Ratio: {e}")
+
+        # Calculate Retention Rate from info
+        try:
+            retention_rate = MarketRatios.retention_rate(fundamentals["info"])
+            print(f"Calculated Retention Rate for {ticker}: {retention_rate:.6f}")
+        except KeyError as e:
+            print(f"Error calculating Retention Rate: Missing key {e}")
+        except Exception as e:
+            print(f"Error calculating Retention Rate: {e}")
